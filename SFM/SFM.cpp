@@ -14,5 +14,5 @@ int main()
     StringCchCopyA(item.szFilePath, _countof(item.szFilePath), "D:\\TEST\\aespa.txt");
 
     SFM_MakeFile("D:\\TEST\\test.exe");
-    SFM_ExtractFile("D:\\TEST\\test.exe");
+    // SFM_ExtractFile("D:\\TEST\\test.exe");
 }

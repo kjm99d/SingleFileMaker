@@ -45,11 +45,11 @@ BOOL SFM_MakeFile(LPCSTR lpFilePath)
         return FALSE;
     
     /*
-    *   |----------------------------------------|
-    *   |       8Byte           |     4Byte      |
-    *   |----------------------------------------|
-    *   |       Signature       |     Count      |
-    *   |----------------------------------------|
+    *   |---------------------------------------------------------|
+    *   |       8Byte           |     4Byte      |     4Byte      |
+    *   |----------------------------------------|----------------|
+    *   |       Signature       |    Version     |     Count      |
+    *   |---------------------------------------------------------|
     */
 
 
@@ -59,6 +59,11 @@ BOOL SFM_MakeFile(LPCSTR lpFilePath)
     StringCchPrintfA(szSignature, _countof(szSignature), "%s", STR_SFM_FMT_SIGNATURE);
     AppendToFile(lpFilePath, szSignature, _countof(szSignature));
     
+    // 버전정보 작성하기
+    int nVersion = 1;
+    AppendToFile(lpFilePath, &nVersion, sizeof(nVersion));
+
+
     // 복사할 파일의 수 작성하기
     int nElement = static_cast<int>(nCount);
     AppendToFile(lpFilePath, &nElement, sizeof(nElement));
@@ -101,8 +106,11 @@ BOOL SFM_ExtractFile(LPCSTR lpFilePath)
     {
         PBYTE dwPos = (PBYTE)pPos;
         dwPos += 8;
-        int nCount = *(int*)dwPos;
 
+        int nVersion = *(int*)dwPos;
+        dwPos += 4;
+
+        int nCount = *(int*)dwPos;
         dwPos += 4;
 
         for (int i = 0; i < nCount; i++)
