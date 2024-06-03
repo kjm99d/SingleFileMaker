@@ -150,10 +150,12 @@
     <ClInclude Include="FileCtrl.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="libSFM.h" />
+    <ClInclude Include="StrCtrl.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileCtrl.cpp" />
     <ClCompile Include="libSFM.cpp" />
+    <ClCompile Include="StrCtrl.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -4,8 +4,11 @@
 
 #include "libSFM.h"
 #include "FileCtrl.h"
+#include "StrCtrl.h"
 
 #include <strsafe.h>
+#include <Shlwapi.h>
+#pragma comment(lib, "shlwapi")
 
 
 std::vector<PSFM_FILE_INFO> g_vecSfm;
@@ -75,9 +78,9 @@ BOOL SFM_MakeFile(LPCSTR lpFilePath)
 
         if (0 == ReadFileToBuffer(g_vecSfm[i]->szFilePath, &pBuffer, &dwSize))
         {
-            g_vecSfm[i]->dwFileSize = dwSize;
+            g_vecSfm[i]->output.dwFileSize = dwSize;
 
-            AppendToFile(lpFilePath, g_vecSfm[i], sizeof(SFM_FILE_INFO));
+            AppendToFile(lpFilePath, &g_vecSfm[i]->output, sizeof(SFM_FILE_INFO_OUTPUT));
             AppendToFile(lpFilePath, pBuffer, dwSize);
         }
 
@@ -98,11 +101,11 @@ BOOL SFM_ExtractFile(LPCSTR lpFilePath)
 
     const int nSignature = 8;
     CHAR szSignature[nSignature] = { 0x00, };
-    StringCchPrintfA(szSignature, _countof(szSignature), "%s", STR_SFM_FMT_SIGNATURE);
-    AppendToFile(lpFilePath, szSignature, _countof(szSignature));
+    (VOID)StringCchPrintfA(szSignature, _countof(szSignature), "%s", STR_SFM_FMT_SIGNATURE);
 
     PVOID pPos = memmem(pBuffer, dwBufferSize, szSignature, nSignature);
-    if (pPos)
+    const BOOL bIsFindSig = (NULL != pPos);
+    if (bIsFindSig)
     {
         PBYTE dwPos = (PBYTE)pPos;
         dwPos += 8;
@@ -115,11 +118,28 @@ BOOL SFM_ExtractFile(LPCSTR lpFilePath)
 
         for (int i = 0; i < nCount; i++)
         {
-            PSFM_FILE_INFO pInfo = (PSFM_FILE_INFO)dwPos;
-            dwPos += sizeof(SFM_FILE_INFO);
+            PSFM_FILE_INFO_OUTPUT pInfo = (PSFM_FILE_INFO_OUTPUT)dwPos;
+            dwPos += sizeof(SFM_FILE_INFO_OUTPUT);
 
             
-            WriteDataToFile(pInfo->szFilePath, (PBYTE)dwPos, (size_t)pInfo->dwFileSize);
+            if (ExtractType::EXIST_NOT_COPY == pInfo->extractType && TRUE == PathFileExistsA(pInfo->szFilePath))
+            {
+                // 파일이 존재하면 복사하지 않음    
+            }
+            else if (ExtractType::RANDOM_FILENAME == pInfo->extractType)
+            {
+                // 출력파일 경로를 랜덤 경로로 지정
+                // 일반적으로 파일명을 랜덤으로 하나, 경로자체를 윈도우 TEMP 경로로 취급
+                CHAR szFilePath[MAX_PATH] = { 0, };
+                (VOID)GetRandomFileName(szFilePath, _countof(szFilePath));
+
+                (VOID)WriteDataToFile(szFilePath, (PBYTE)dwPos, (size_t)pInfo->dwFileSize);
+            }
+            else
+            {
+                // 옵션이 지정되어 있지 않을 시 일반 출력경로로 파일 복사
+                (VOID)WriteDataToFile(pInfo->szFilePath, (PBYTE)dwPos, (size_t)pInfo->dwFileSize);
+            }
 
             dwPos += pInfo->dwFileSize;
         }
