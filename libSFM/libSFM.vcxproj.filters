@@ -44,5 +44,8 @@
     <ClCompile Include="StrCtrl.cpp">
       <Filter>소스 파일\Ctrl</Filter>
     </ClCompile>
+    <ClCompile Include="SFMError.cpp">
+      <Filter>헤더 파일</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -91,12 +91,14 @@ BOOL SFM_MakeFile(LPCSTR lpFilePath)
     return TRUE;
 }
 
-BOOL SFM_ExtractFile(LPCSTR lpFilePath)
+SFM_ERROR SFM_ExtractFile(LPCSTR lpFilePath)
 {
     PVOID pBuffer = NULL;
     DWORD dwBufferSize = 0;
     if (0 != ReadFileToBuffer(lpFilePath, &pBuffer, &dwBufferSize))
-        return FALSE;
+    {
+        return SFM_ERROR::SFM_FILE_READ_FAILED;
+    }
     
 
     const int nSignature = 8;
@@ -145,7 +147,7 @@ BOOL SFM_ExtractFile(LPCSTR lpFilePath)
         }
     }
 
-    return TRUE;
+    return SFM_ERROR::SFM_SUCCESS;
 }
 
 
