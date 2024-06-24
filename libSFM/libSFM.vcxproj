@@ -155,7 +155,7 @@
   <ItemGroup>
     <ClCompile Include="FileCtrl.cpp" />
     <ClCompile Include="libSFM.cpp" />
-    <ClCompile Include="SFMError.cpp" />
+    <ClCompile Include="SFMError.h" />
     <ClCompile Include="StrCtrl.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
